@@ -1,0 +1,64 @@
+group 'com.hiczp'
+version '0.0.1'
+description 'Bilibili 抽奖监听程序'
+
+buildscript {
+    ext {
+        kotlinVersion = '1.2.41'
+        jvmTargetVersion = '1.8'
+        springBootVersion = '2.0.1.RELEASE'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-jpa'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = jvmTargetVersion
+
+repositories {
+    mavenCentral()
+}
+
+//kotlin
+dependencies {
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib'
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+}
+compileKotlin {
+    kotlinOptions.jvmTarget = jvmTargetVersion
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = jvmTargetVersion
+}
+
+//bilibili
+dependencies {
+    // https://mvnrepository.com/artifact/com.hiczp/bilibili-api
+    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.10'
+}
+
+//spring
+dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.11'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+    compile group: 'org.springframework.boot', name: 'spring-boot-devtools'
+}
