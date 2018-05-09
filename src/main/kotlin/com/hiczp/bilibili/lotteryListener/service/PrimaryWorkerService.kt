@@ -27,6 +27,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     @PostConstruct
     fun onCreate() {
         eventLoopGroup = NioEventLoopGroup(1)
+        reconnectListener = ReconnectListener(RECONNECT_TRY_LIMIT)
     }
 
     /**
@@ -35,7 +36,6 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     fun start() {
         logger.info("Start connect to official music room...")
         try {
-            reconnectListener = ReconnectListener(RECONNECT_TRY_LIMIT)
             val liveClient = bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
                     .registerListener(reconnectListener!!)
                     .registerListener(PrimaryRoomListener(applicationContext))
