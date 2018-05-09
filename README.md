@@ -15,9 +15,14 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
     spring.datasource.username=debian-sys-maint
     spring.datasource.password=
 
-然后编译并启动程序
+然后直接编译并启动程序
 
     ./gradlew bootRun
+
+或者打包后再运行
+
+    ./gradlew bootJar
+    java -jar ./build/libs/bilibili-lottery-listener-{version}.jar
 
 # 抽奖消息
 ## 全站通告的抽奖信息
