@@ -21,12 +21,12 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     /**
      *  主 EventLoopGroup 用于连接 3 号直播间, 接收全网广播信息
      */
-    private var primaryEventLoopGroup: EventLoopGroup? = null
+    private var eventLoopGroup: EventLoopGroup? = null
     private var reconnectListener: ReconnectListener? = null
 
     @PostConstruct
     fun onCreate() {
-        primaryEventLoopGroup = NioEventLoopGroup(1)
+        eventLoopGroup = NioEventLoopGroup(1)
     }
 
     /**
@@ -36,7 +36,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
         logger.info("Start connect to official music room...")
         try {
             reconnectListener = ReconnectListener(RECONNECT_TRY_LIMIT)
-            val liveClient = bilibiliAPI.getLiveClient(primaryEventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
+            val liveClient = bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
                     .registerListener(reconnectListener!!)
                     .registerListener(PrimaryRoomListener(applicationContext))
             //开发模式接收 DanMuMsg
@@ -55,7 +55,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     @PreDestroy
     fun onDestroy() {
         reconnectListener?.userWantExit = true
-        primaryEventLoopGroup?.shutdownGracefully()
+        eventLoopGroup?.shutdownGracefully()
     }
 
     companion object {

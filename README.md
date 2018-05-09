@@ -31,7 +31,7 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 ## 非全站通告的抽奖信息
 比如 20 倍以下的节奏风暴不会在全站通告, 而只在发生这个事件的直播间内会有消息.
 
-对于这种事件, 本程序的策略是连接最热门的前 2000 个直播间并监听他们的消息, 从而尽可能多的获得这种抽奖消息并推送给订阅者.
+对于这种事件, 本程序的策略是连接最热门的前 2000 个直播间并监听他们的消息(//TODO 尚未实现), 从而尽可能多的获得这种抽奖消息并推送给订阅者.
 
 # 订阅
 ## Hook
@@ -47,6 +47,27 @@ BODY application/json
 
 //TODO
 Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
+
+事件类型
+
+    enum class EventType {
+        /**
+         * DanMuMsg 用于测试时调试程序逻辑
+         */
+        DANMU_MSG_EVENT,
+        /**
+         * 小电视
+         */
+        SMALL_TV_EVENT,
+        /**
+         * 超过 20 倍的节奏风暴
+         */
+        GLOBAL_SPECIAL_GIFT_EVENT,
+        /**
+         * 活动礼物
+         */
+        ACTIVITY_GIFT_EVENT
+    }
 
 ## WebSocket
 客户端通过 WebSocket 连接到本程序, 并从 WebSocket 中得到推送

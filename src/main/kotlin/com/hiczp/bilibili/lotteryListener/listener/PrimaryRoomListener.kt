@@ -2,8 +2,11 @@ package com.hiczp.bilibili.lotteryListener.listener
 
 import com.google.common.eventbus.Subscribe
 import com.hiczp.bilibili.api.live.socket.event.DanMuMsgPackageEvent
+import com.hiczp.bilibili.api.live.socket.event.SysGiftPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SysMsgPackageEvent
+import com.hiczp.bilibili.lotteryListener.event.ActivityGiftEvent
 import com.hiczp.bilibili.lotteryListener.event.DanMuMsgEvent
+import com.hiczp.bilibili.lotteryListener.event.GlobalSpecialGiftEvent
 import com.hiczp.bilibili.lotteryListener.event.SmallTVEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
@@ -20,8 +23,28 @@ class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
         }
     }
 
+    @Subscribe
+    fun onSysGift(sysGiftPackageEvent: SysGiftPackageEvent) {
+        val sysGiftEntity = sysGiftPackageEvent.entity
+        val event = when (sysGiftEntity.giftId) {
+            0 -> return //不可抽奖的礼物
+            SPECIAL_GIFT_ID -> {    //超过 20 倍的节奏风暴
+                logger.info("Received globalSpecialGift package, " +
+                        "roomId ${sysGiftEntity.roomId}")
+                GlobalSpecialGiftEvent(sysGiftPackageEvent.source0, sysGiftEntity)
+            }
+            else -> {    //活动礼物
+                logger.info("Received activityGift package, " +
+                        "giftId ${sysGiftEntity.giftId}, msg ${sysGiftEntity.msg}, roomId ${sysGiftEntity.roomId}, realRoomId ${sysGiftEntity.realRoomId}")
+                ActivityGiftEvent(sysGiftPackageEvent.source0, sysGiftEntity)
+            }
+        }
+        applicationContext.publishEvent(event)
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger(PrimaryRoomListener::class.java)
+        private const val SPECIAL_GIFT_ID = 39
     }
 }
 
