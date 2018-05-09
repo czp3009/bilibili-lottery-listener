@@ -1,6 +1,5 @@
-package com.hiczp.bilibili.lotteryListener.controller
+package com.hiczp.bilibili.lotteryListener.controller.test
 
-import com.hiczp.bilibili.lotteryListener.dto.PushModel
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.PostMapping
@@ -13,14 +12,15 @@ import org.springframework.web.bind.annotation.RestController
  */
 @Profile("dev")
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/test/hook")
 class TestController {
     /**
+     * 我们假装接受者是一种动态语言, 接收类型是字符串
      * 我们假装 hook 有返回值, 并且甚至不是一个 JSON
      */
-    @PostMapping("/hook")
-    fun hook(@RequestBody pushModel: PushModel): String {
-        logger.info("Received pushModel, type ${pushModel.eventType}")
+    @PostMapping("/danMuMsg")
+    fun hook(@RequestBody string: String): String {
+        logger.debug("Received pushModel, JSON below: \n$string")
         return "HelloWorld!"
     }
 

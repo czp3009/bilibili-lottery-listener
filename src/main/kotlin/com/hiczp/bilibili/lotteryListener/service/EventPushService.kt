@@ -1,8 +1,8 @@
 package com.hiczp.bilibili.lotteryListener.service
 
 import com.hiczp.bilibili.lotteryListener.dao.Hook
-import com.hiczp.bilibili.lotteryListener.dto.PushModel
 import com.hiczp.bilibili.lotteryListener.event.LotteryEvent
+import com.hiczp.bilibili.lotteryListener.model.PushModel
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import retrofit2.Call
@@ -27,12 +27,16 @@ class EventPushService {
     }
 
     fun push(lotteryEvent: LotteryEvent, hooks: List<Hook>) {
+        if (hooks.isEmpty()) {
+            logger.info("No hook for ${lotteryEvent.eventType}")
+            return
+        }
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
         val pushModel = PushModel(lotteryEvent.eventType, lotteryEvent.dataEntity)
         hooks.forEach {
             httpService.push(it.url, pushModel).enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>?, response: Response<Void>?) {
-                    logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url}")
+                override fun onResponse(call: Call<Void>?, response: Response<Void>) {
+                    logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url} with return code ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<Void>?, t: Throwable) {
@@ -48,7 +52,8 @@ class EventPushService {
     }
 
     private interface HttpService {
+        //retrofit 使用泛型作为 body 好像有点问题
         @POST
-        fun push(@Url url: String, @Body pushModel: PushModel): Call<Void>
+        fun push(@Url url: String, @Body pushModel: Any): Call<Void>
     }
 }
