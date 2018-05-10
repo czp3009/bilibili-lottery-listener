@@ -18,7 +18,7 @@ class TestController {
      * 我们假装接受者是一种动态语言, 接收类型是字符串
      * 我们假装 hook 有返回值, 并且甚至不是一个 JSON
      */
-    @PostMapping("/danMuMsg")
+    @PostMapping
     fun hook(@RequestBody string: String): String {
         logger.debug("Received pushModel, JSON below: \n$string")
         return "HelloWorld!"

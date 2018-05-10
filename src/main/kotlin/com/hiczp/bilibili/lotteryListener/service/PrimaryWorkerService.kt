@@ -31,7 +31,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     }
 
     /**
-     * 这个方法是同步的, Spring 初始化时抛出异常会终止初始化
+     * 这个方法是同步的, 如果连接不上 3 号直播间将终止程序
      */
     fun start() {
         logger.info("Start connect to official music room...")
@@ -47,7 +47,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
         } catch (e: IOException) {
             logger.error("Connect to official music room failed: ${e.message}")
             logger.error("There are some problem with your network, application init failed")
-            throw e
+            throw e //在主线程上抛出异常就可以终止 Spring
         }
         logger.info("Connect to official music room complete")
     }

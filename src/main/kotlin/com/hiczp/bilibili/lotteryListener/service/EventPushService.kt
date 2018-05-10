@@ -32,8 +32,13 @@ class EventPushService {
             return
         }
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
-        val pushModel = PushModel(lotteryEvent.eventType, lotteryEvent.dataEntity)
-        hooks.parallelStream().forEach {
+        val pushModel = PushModel(
+                lotteryEvent.getSource0().showRoomId,
+                lotteryEvent.getSource0().roomIdOrShowRoomId,
+                lotteryEvent.eventType,
+                lotteryEvent.dataEntity
+        )
+        hooks.forEach {
             httpService.push(it.url, pushModel).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>?, response: Response<Void>) {
                     logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url} with return code ${response.code()}")
