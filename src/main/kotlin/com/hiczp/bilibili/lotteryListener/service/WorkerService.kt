@@ -89,7 +89,7 @@ open class WorkerService(private val bilibiliAPI: BilibiliAPI,
 
     @Async
     open fun connectToRoom(room: RoomsEntity.Data, actualConnectCount: AtomicInteger) {
-        //一秒钟最大连接 20 个, 以免被封
+        //限制每秒最大请求数, 以免被封
         rateLimiter.acquire()
         val roomId = room.roomId
         try {
@@ -133,7 +133,7 @@ open class WorkerService(private val bilibiliAPI: BilibiliAPI,
         /**
          * 每秒最大请求数, 用于防止 B站 禁封 IP
          */
-        const val REQUEST_RATE_LIMIT = 20.0
+        const val REQUEST_RATE_LIMIT = 10.0
         /**
          * 断开连接并重新连接新的最热房间(复数)的间隔, 分
          */

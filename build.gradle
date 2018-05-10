@@ -1,5 +1,5 @@
 group 'com.hiczp'
-version '0.0.2'
+version '0.0.3'
 description 'Bilibili 抽奖监听程序'
 
 buildscript {
@@ -61,8 +61,8 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.11'
 //    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
 //    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security'
-//    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
-//    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket'
 //    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
 //    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
