@@ -27,7 +27,7 @@ class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
     fun onSysGift(sysGiftPackageEvent: SysGiftPackageEvent) {
         val sysGiftEntity = sysGiftPackageEvent.entity
         val event = when (sysGiftEntity.giftId) {
-            0 -> return //不可抽奖的礼物
+            null -> return //不可抽奖的礼物
             SPECIAL_GIFT_ID -> {    //超过 20 倍的节奏风暴
                 logger.info("Received globalSpecialGift package, " +
                         "roomId ${sysGiftEntity.roomId}")
@@ -44,7 +44,7 @@ class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(PrimaryRoomListener::class.java)
-        private const val SPECIAL_GIFT_ID = 39
+        private const val SPECIAL_GIFT_ID = 39L
     }
 }
 

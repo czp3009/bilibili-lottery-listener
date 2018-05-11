@@ -1,11 +1,12 @@
 package com.hiczp.bilibili.lotteryListener
 
+import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
-import org.springframework.scheduling.annotation.EnableAsync
 
 @SpringBootApplication
-@EnableAsync
+@EnableConfigurationProperties(LotteryListenerConfigurationProperties::class)
 open class Application
 
 fun main(args: Array<String>) {

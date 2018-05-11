@@ -33,7 +33,7 @@ class EventPushService {
         }
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
         val pushModel = PushModel(
-                lotteryEvent.getSource0().showRoomId,
+                lotteryEvent.getSource0().showRoomIdOrRoomId,
                 lotteryEvent.getSource0().roomIdOrShowRoomId,
                 lotteryEvent.eventType,
                 lotteryEvent.dataEntity

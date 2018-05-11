@@ -1,6 +1,7 @@
 package com.hiczp.bilibili.lotteryListener.service
 
 import com.hiczp.bilibili.api.BilibiliAPI
+import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationProperties
 import com.hiczp.bilibili.lotteryListener.listener.PrimaryRoomListener
 import com.hiczp.bilibili.lotteryListener.listener.PrimaryRoomTestListener
 import com.hiczp.bilibili.lotteryListener.listener.ReconnectListener
@@ -17,7 +18,8 @@ import javax.annotation.PreDestroy
 @Service
 class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
                            private val applicationContext: ApplicationContext,
-                           private val environment: ConfigurableEnvironment) {
+                           private val environment: ConfigurableEnvironment,
+                           private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
     /**
      *  主 EventLoopGroup 用于连接 3 号直播间, 接收全网广播信息
      */
@@ -27,7 +29,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     @PostConstruct
     fun onCreate() {
         eventLoopGroup = NioEventLoopGroup(1)
-        reconnectListener = ReconnectListener(RECONNECT_TRY_LIMIT)
+        reconnectListener = ReconnectListener(lotteryListenerConfigurationProperties.reconnectTryLimit)
     }
 
     /**
@@ -61,6 +63,5 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     companion object {
         private val logger = LoggerFactory.getLogger(PrimaryWorkerService::class.java)
         private const val OFFICIAL_MUSIC_ROOM_ID = 3L
-        private const val RECONNECT_TRY_LIMIT = 5
     }
 }

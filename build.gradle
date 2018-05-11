@@ -1,5 +1,5 @@
 group 'com.hiczp'
-version '0.0.3'
+version '0.0.4'
 description 'Bilibili 抽奖监听程序'
 
 buildscript {
@@ -21,6 +21,7 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-jpa'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
@@ -48,7 +49,7 @@ compileTestKotlin {
 //bilibili
 dependencies {
     // https://mvnrepository.com/artifact/com.hiczp/bilibili-api
-    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.10'
+    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.12'
 }
 
 //spring
@@ -67,4 +68,6 @@ dependencies {
 //    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
     compile group: 'org.springframework.boot', name: 'spring-boot-devtools'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor
+    kapt group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }

@@ -1,5 +1,6 @@
 package com.hiczp.bilibili.lotteryListener.listener
 
+import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationProperties
 import com.hiczp.bilibili.lotteryListener.service.PrimaryWorkerService
 import com.hiczp.bilibili.lotteryListener.service.WorkerService
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -12,7 +13,8 @@ import java.time.Duration
 @Component
 class ApplicationEventListener(private val primaryWorkerService: PrimaryWorkerService,
                                private val workerService: WorkerService,
-                               private val taskScheduler: TaskScheduler) {
+                               private val taskScheduler: TaskScheduler,
+                               private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
     @Order(0)
     @EventListener(ApplicationReadyEvent::class)
     fun startPrimaryWorker() = primaryWorkerService.start()
@@ -24,7 +26,7 @@ class ApplicationEventListener(private val primaryWorkerService: PrimaryWorkerSe
     fun startWorker() {
         taskScheduler.scheduleWithFixedDelay(
                 { workerService.refresh() },
-                Duration.ofMinutes(WorkerService.REFRESH_INTERVAL)
+                Duration.ofMinutes(lotteryListenerConfigurationProperties.refreshInterval)
         )
     }
 }

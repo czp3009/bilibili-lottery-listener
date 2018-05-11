@@ -12,11 +12,11 @@ class ReconnectListener(private val reconnectTryLimit: Int = 0) {
     fun onConnectionClose(connectionCloseEvent: ConnectionCloseEvent) {
         val liveClient = connectionCloseEvent.source0
         if (userWantExit) {
-            logger.info("Connection with room ${liveClient.showRoomId} closed")
+            logger.info("Connection with room ${liveClient.showRoomIdOrRoomId} closed")
             return
         }
 
-        logger.error("Connection with room ${liveClient.showRoomId} lost")
+        logger.error("Connection with room ${liveClient.showRoomIdOrRoomId} lost")
         if (reconnectTryLimit <= 0) return
 
         logger.info("Preparing to reconnect...")

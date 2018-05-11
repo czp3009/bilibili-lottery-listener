@@ -3,27 +3,30 @@ package com.hiczp.bilibili.lotteryListener.service
 import com.google.common.util.concurrent.RateLimiter
 import com.hiczp.bilibili.api.BilibiliAPI
 import com.hiczp.bilibili.api.live.entity.RoomsEntity
+import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationProperties
 import com.hiczp.bilibili.lotteryListener.listener.NormalRoomListener
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.IOException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.ExecutorService
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
 @Service
-open class WorkerService(private val bilibiliAPI: BilibiliAPI,
-                         private val applicationContext: ApplicationContext) {
-    private val rateLimiter = RateLimiter.create(REQUEST_RATE_LIMIT)
+class WorkerService(private val bilibiliAPI: BilibiliAPI,
+                    private val applicationContext: ApplicationContext,
+                    private val executorService: ExecutorService,
+                    private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
+    private val rateLimiter = RateLimiter.create(lotteryListenerConfigurationProperties.requestRateLimit)
+    private val pageCount = lotteryListenerConfigurationProperties.pageCount
+    private val expectedRoomCount = pageCount * PAGE_SIZE
     private lateinit var normalRoomListener: NormalRoomListener
     private var eventLoopGroup: EventLoopGroup? = null
 
@@ -34,15 +37,15 @@ open class WorkerService(private val bilibiliAPI: BilibiliAPI,
     }
 
     private fun createEventLoopGroup() {
-        eventLoopGroup = NioEventLoopGroup(EXPECTED_ROOM_COUNT / 50) //每五十个房间使用一个线程
+        eventLoopGroup = NioEventLoopGroup(expectedRoomCount / lotteryListenerConfigurationProperties.roomsPerThread)
     }
 
-    open fun connectToHottestRooms() {
-        logger.info("Start connect to top $EXPECTED_ROOM_COUNT hottest room")
+    private fun connectToHottestRooms() {
+        logger.info("Start connect to top $expectedRoomCount hottest room")
         //获取前 x 页的热门房间信息
-        val countDownLatch = CountDownLatch(PAGE_COUNT)
+        val countDownLatch = CountDownLatch(pageCount)
         val rooms = ArrayList<RoomsEntity.Data>()
-        for (page in 1..PAGE_COUNT) {
+        for (page in 1..pageCount) {
             rateLimiter.acquire()
             bilibiliAPI.liveService.getHottestRooms(page).enqueue(object : Callback<RoomsEntity> {
                 override fun onResponse(call: Call<RoomsEntity>, response: Response<RoomsEntity>) {
@@ -81,36 +84,28 @@ open class WorkerService(private val bilibiliAPI: BilibiliAPI,
         logger.info("Get ${rooms.size} available rooms")
 
         //开始连接房间
-        val actualConnectCount = AtomicInteger()
-        rooms.forEach { connectToRoom(it, actualConnectCount) }
-
-        logger.info("Expected connect to $EXPECTED_ROOM_COUNT rooms, ${rooms.size} available, $actualConnectCount succeed")
-    }
-
-    @Async
-    open fun connectToRoom(room: RoomsEntity.Data, actualConnectCount: AtomicInteger) {
-        //限制每秒最大请求数, 以免被封
-        rateLimiter.acquire()
-        val roomId = room.roomId
-        try {
-            bilibiliAPI.getLiveClient(eventLoopGroup, roomId)
-                    .registerListener(normalRoomListener)
-                    .connect()
-            actualConnectCount.incrementAndGet()
-            logger.debug("Connect to room $roomId succeed")
-        } catch (e: IOException) {
-            logger.error("Connect to room $roomId failed: ${e.message}")
+        logger.info("Start connect to ${rooms.size} rooms")
+        rooms.forEach {
+            //限制每秒最大请求数, 以免被封
+            rateLimiter.acquire()
+            executorService.submit(
+                    bilibiliAPI.getLiveClient(eventLoopGroup, it.roomId, true)
+                            .registerListener(normalRoomListener)
+                            .connectAsync()
+            )
         }
+        logger.info("All connection requests have been sent")
     }
 
     @PreDestroy
     fun onDestroy() {
         shutdownEventLoopGroup()
+        executorService.shutdownNow()
     }
 
     private fun shutdownEventLoopGroup() = eventLoopGroup?.shutdownGracefully()
 
-    open fun refresh() {
+    fun refresh() {
         shutdownEventLoopGroup()
         createEventLoopGroup()
         connectToHottestRooms()
@@ -119,24 +114,8 @@ open class WorkerService(private val bilibiliAPI: BilibiliAPI,
     companion object {
         private val logger = LoggerFactory.getLogger(WorkerService::class.java)
         /**
-         * 连接前多少页的最热房间
-         */
-        private const val PAGE_COUNT = 30
-        /**
          * 最热房间的 API 每页有 20 个元素
          */
         private const val PAGE_SIZE = 30
-        /**
-         * 需要连接的房间数量
-         */
-        private const val EXPECTED_ROOM_COUNT = PAGE_COUNT * PAGE_SIZE
-        /**
-         * 每秒最大请求数, 用于防止 B站 禁封 IP
-         */
-        const val REQUEST_RATE_LIMIT = 10.0
-        /**
-         * 断开连接并重新连接新的最热房间(复数)的间隔, 分
-         */
-        const val REFRESH_INTERVAL = 30L
     }
 }

@@ -11,7 +11,7 @@ class NormalRoomListener(private val applicationContext: ApplicationContext) {
     @Subscribe
     fun onSpecialGift(specialGiftPackageEvent: SpecialGiftPackageEvent) {
         val specialGift = specialGiftPackageEvent.entity.data.`$39`
-        logger.info("Received specialGift page, " +
+        logger.info("Received specialGift package, " +
                 "roomId ${specialGiftPackageEvent.source0.roomIdOrShowRoomId}, id ${specialGift.id}, action '${specialGift.action}'")
         val event = when (specialGift.action) {
             "start" -> SpecialGiftStartEvent(specialGiftPackageEvent.source0, specialGiftPackageEvent.entity)

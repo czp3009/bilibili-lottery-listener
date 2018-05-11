@@ -24,6 +24,36 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
     ./gradlew bootJar
     java -jar ./build/libs/bilibili-lottery-listener-{version}.jar
 
+# 可配置项
+配置写在配置文件中, 例如
+
+    bilibili.listener.page-count=30
+
+以下是默认值和注释
+
+    data class LotteryListenerConfigurationProperties(
+            /**
+             * 重新连接官方音悦台的重试次数限制
+             */
+            var reconnectTryLimit: Int = 5,
+            /**
+             * 连接前多少页的最热房间(一页有 30 个房间)
+             */
+            var pageCount: Int = 30,
+            /**
+             * 多少个房间使用一个线程
+             */
+            var roomsPerThread: Int = 50,
+            /**
+             * 每秒最大请求数, 用于防止 B站 禁封 IP
+             */
+            var requestRateLimit: Double = 20.0,
+            /**
+             * 断开连接并重新连接新的最热房间(复数)的间隔, 分
+             */
+            var refreshInterval: Long = 30L
+    )
+
 # 抽奖消息
 ## 全站通告的抽奖信息
 全站通告的抽奖信息有  小电视, 20 倍以上的节奏风暴, 活动礼物
@@ -31,7 +61,7 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 ## 非全站通告的抽奖信息
 比如 20 倍以下的节奏风暴不会在全站通告, 而只在发生这个事件的直播间内会有消息(在弹幕推送 socket 中).
 
-对于这种事件, 本程序的策略是连接最热门的前 900 个直播间并监听他们的消息, 从而尽可能多的获得这种抽奖消息并推送给订阅者.
+对于这种事件, 本程序的策略是连接最热门的前 N 个直播间并监听他们的消息, 从而尽可能多的获得这种抽奖消息并推送给订阅者.
 
 # 订阅
 ## Hook
