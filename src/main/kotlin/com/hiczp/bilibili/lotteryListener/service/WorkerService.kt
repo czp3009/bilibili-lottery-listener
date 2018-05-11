@@ -99,8 +99,8 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
 
     @PreDestroy
     fun onDestroy() {
-        shutdownEventLoopGroup()
         executorService.shutdownNow()
+        shutdownEventLoopGroup()
     }
 
     private fun shutdownEventLoopGroup() = eventLoopGroup?.shutdownGracefully()
