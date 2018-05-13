@@ -3,13 +3,10 @@ package com.hiczp.bilibili.lotteryListener.service
 import com.hiczp.bilibili.api.BilibiliAPI
 import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationProperties
 import com.hiczp.bilibili.lotteryListener.listener.PrimaryRoomListener
-import com.hiczp.bilibili.lotteryListener.listener.PrimaryRoomTestListener
 import com.hiczp.bilibili.lotteryListener.listener.ReconnectListener
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationContext
-import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.stereotype.Service
 import java.io.IOException
 import javax.annotation.PostConstruct
@@ -17,8 +14,7 @@ import javax.annotation.PreDestroy
 
 @Service
 class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
-                           private val applicationContext: ApplicationContext,
-                           private val environment: ConfigurableEnvironment,
+                           private val primaryRoomListeners: List<PrimaryRoomListener>,
                            private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
     /**
      *  主 EventLoopGroup 用于连接 3 号直播间, 接收全网广播信息
@@ -40,11 +36,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
         try {
             val liveClient = bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
                     .registerListener(reconnectListener!!)
-                    .registerListener(PrimaryRoomListener(applicationContext))
-            //开发模式接收 DanMuMsg
-            if (environment.activeProfiles.contains("dev")) {
-                liveClient.registerListener(PrimaryRoomTestListener(applicationContext))
-            }
+            primaryRoomListeners.forEach { liveClient.registerListener(it) }
             liveClient.connect()
         } catch (e: IOException) {
             logger.error("Connect to official music room failed: ${e.message}")

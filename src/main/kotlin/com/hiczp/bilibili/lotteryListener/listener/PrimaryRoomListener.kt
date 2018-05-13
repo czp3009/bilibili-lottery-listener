@@ -10,8 +10,13 @@ import com.hiczp.bilibili.lotteryListener.event.GlobalSpecialGiftEvent
 import com.hiczp.bilibili.lotteryListener.event.SmallTVEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.Profile
+import org.springframework.stereotype.Component
 
-class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
+interface PrimaryRoomListener
+
+@Component
+class DefaultPrimaryRoomListener(private val applicationContext: ApplicationContext) : PrimaryRoomListener {
     @Subscribe
     fun onSysMsg(sysMsgPackageEvent: SysMsgPackageEvent) {
         val sysMsgEntity = sysMsgPackageEvent.entity
@@ -43,7 +48,7 @@ class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PrimaryRoomListener::class.java)
+        private val logger = LoggerFactory.getLogger(DefaultPrimaryRoomListener::class.java)
         private const val SPECIAL_GIFT_ID = 39L
     }
 }
@@ -51,7 +56,9 @@ class PrimaryRoomListener(private val applicationContext: ApplicationContext) {
 /**
  * 测试用
  */
-class PrimaryRoomTestListener(private val applicationContext: ApplicationContext) {
+@Profile("dev")
+@Component
+class TestPrimaryRoomListener(private val applicationContext: ApplicationContext) : PrimaryRoomListener {
     @Subscribe
     fun onDanMuMsg(danMuMsgPackageEvent: DanMuMsgPackageEvent) {
         val danMuMsgEntity = danMuMsgPackageEvent.entity
@@ -62,6 +69,6 @@ class PrimaryRoomTestListener(private val applicationContext: ApplicationContext
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(PrimaryRoomTestListener::class.java)
+        private val logger = LoggerFactory.getLogger(TestPrimaryRoomListener::class.java)
     }
 }

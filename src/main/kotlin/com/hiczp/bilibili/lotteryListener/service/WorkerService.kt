@@ -8,7 +8,6 @@ import com.hiczp.bilibili.lotteryListener.listener.NormalRoomListener
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import retrofit2.Call
@@ -21,18 +20,16 @@ import javax.annotation.PreDestroy
 
 @Service
 class WorkerService(private val bilibiliAPI: BilibiliAPI,
-                    private val applicationContext: ApplicationContext,
+                    private val normalRoomListener: NormalRoomListener,
                     private val executorService: ExecutorService,
                     private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
     private val rateLimiter = RateLimiter.create(lotteryListenerConfigurationProperties.requestRateLimit)
     private val pageCount = lotteryListenerConfigurationProperties.pageCount
     private val expectedRoomCount = pageCount * PAGE_SIZE
-    private lateinit var normalRoomListener: NormalRoomListener
     private var eventLoopGroup: EventLoopGroup? = null
 
     @PostConstruct
     fun onCreate() {
-        normalRoomListener = NormalRoomListener(applicationContext)
         createEventLoopGroup()
     }
 

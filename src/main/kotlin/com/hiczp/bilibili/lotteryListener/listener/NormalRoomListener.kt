@@ -6,7 +6,9 @@ import com.hiczp.bilibili.lotteryListener.event.SpecialGiftEndEvent
 import com.hiczp.bilibili.lotteryListener.event.SpecialGiftStartEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Component
 
+@Component
 class NormalRoomListener(private val applicationContext: ApplicationContext) {
     @Subscribe
     fun onSpecialGift(specialGiftPackageEvent: SpecialGiftPackageEvent) {
