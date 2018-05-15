@@ -15,7 +15,7 @@ import retrofit2.http.POST
 import retrofit2.http.Url
 
 @Service
-class EventPushService {
+class HookPushService {
     private var httpService: HttpService
 
     init {
@@ -26,20 +26,14 @@ class EventPushService {
                 .create(HttpService::class.java)
     }
 
-    fun push(lotteryEvent: LotteryEvent, hooks: List<Hook>) {
+    fun push(lotteryEvent: LotteryEvent<*>, hooks: List<Hook>) {
         if (hooks.isEmpty()) {
             logger.info("No hook for ${lotteryEvent.eventType}")
             return
         }
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
-        val pushModel = PushModel(
-                lotteryEvent.getSource0().showRoomIdOrRoomId,
-                lotteryEvent.getSource0().roomIdOrShowRoomId,
-                lotteryEvent.eventType,
-                lotteryEvent.dataEntity
-        )
         hooks.forEach {
-            httpService.push(it.url, pushModel).enqueue(object : Callback<Void> {
+            httpService.push(it.url, PushModel(lotteryEvent)).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>?, response: Response<Void>) {
                     logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url} with return code ${response.code()}")
                 }
@@ -53,7 +47,7 @@ class EventPushService {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(EventPushService::class.java)
+        private val logger = LoggerFactory.getLogger(HookPushService::class.java)
     }
 
     private interface HttpService {

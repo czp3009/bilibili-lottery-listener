@@ -4,10 +4,8 @@ import com.google.common.eventbus.Subscribe
 import com.hiczp.bilibili.api.live.socket.event.DanMuMsgPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SysGiftPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SysMsgPackageEvent
-import com.hiczp.bilibili.lotteryListener.event.ActivityGiftEvent
-import com.hiczp.bilibili.lotteryListener.event.DanMuMsgEvent
-import com.hiczp.bilibili.lotteryListener.event.GlobalSpecialGiftEvent
-import com.hiczp.bilibili.lotteryListener.event.SmallTVEvent
+import com.hiczp.bilibili.lotteryListener.event.EventType
+import com.hiczp.bilibili.lotteryListener.event.LotteryEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Profile
@@ -24,7 +22,7 @@ class DefaultPrimaryRoomListener(private val applicationContext: ApplicationCont
         if (sysMsgEntity.tvId != null) {
             logger.info("Received smallTV package, " +
                     "tvId ${sysMsgEntity.tvId}, roomId ${sysMsgEntity.roomId}, realRoomId ${sysMsgEntity.realRoomId}")
-            applicationContext.publishEvent(SmallTVEvent(sysMsgPackageEvent.source0, sysMsgEntity))
+            applicationContext.publishEvent(LotteryEvent(EventType.SMALL_TV_EVENT, sysMsgPackageEvent))
         }
     }
 
@@ -36,12 +34,12 @@ class DefaultPrimaryRoomListener(private val applicationContext: ApplicationCont
             SPECIAL_GIFT_ID -> {    //超过 20 倍的节奏风暴
                 logger.info("Received globalSpecialGift package, " +
                         "roomId ${sysGiftEntity.roomId}")
-                GlobalSpecialGiftEvent(sysGiftPackageEvent.source0, sysGiftEntity)
+                LotteryEvent(EventType.GLOBAL_SPECIAL_GIFT_EVENT, sysGiftPackageEvent)
             }
             else -> {    //活动礼物
                 logger.info("Received activityGift package, " +
                         "giftId ${sysGiftEntity.giftId}, msg ${sysGiftEntity.msg}, roomId ${sysGiftEntity.roomId}, realRoomId ${sysGiftEntity.realRoomId}")
-                ActivityGiftEvent(sysGiftPackageEvent.source0, sysGiftEntity)
+                LotteryEvent(EventType.ACTIVITY_GIFT_EVENT, sysGiftPackageEvent)
             }
         }
         applicationContext.publishEvent(event)
@@ -63,9 +61,7 @@ class TestPrimaryRoomListener(private val applicationContext: ApplicationContext
     fun onDanMuMsg(danMuMsgPackageEvent: DanMuMsgPackageEvent) {
         val danMuMsgEntity = danMuMsgPackageEvent.entity
         logger.info("Received danMuMsg package, username '${danMuMsgEntity.username}', content '${danMuMsgEntity.message}'")
-        applicationContext.publishEvent(
-                DanMuMsgEvent(danMuMsgPackageEvent.source0, danMuMsgPackageEvent.entity)
-        )
+        applicationContext.publishEvent(LotteryEvent(EventType.DANMU_MSG_EVENT, danMuMsgPackageEvent))
     }
 
     companion object {

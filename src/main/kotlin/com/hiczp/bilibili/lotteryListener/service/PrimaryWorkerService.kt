@@ -34,10 +34,10 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
     fun start() {
         logger.info("Start connect to official music room...")
         try {
-            val liveClient = bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
+            bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
                     .registerListener(reconnectListener!!)
-            primaryRoomListeners.forEach { liveClient.registerListener(it) }
-            liveClient.connect()
+                    .apply { primaryRoomListeners.forEach { registerListener(it) } }
+                    .connect()
         } catch (e: IOException) {
             logger.error("Connect to official music room failed: ${e.message}")
             logger.error("There are some problem with your network, application init failed")

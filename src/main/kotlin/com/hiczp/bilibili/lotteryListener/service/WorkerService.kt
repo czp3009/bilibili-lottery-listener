@@ -20,7 +20,7 @@ import javax.annotation.PreDestroy
 
 @Service
 class WorkerService(private val bilibiliAPI: BilibiliAPI,
-                    private val normalRoomListener: NormalRoomListener,
+                    private val normalRoomListeners: List<NormalRoomListener>,
                     private val executorService: ExecutorService,
                     private val lotteryListenerConfigurationProperties: LotteryListenerConfigurationProperties) {
     private val rateLimiter = RateLimiter.create(lotteryListenerConfigurationProperties.requestRateLimit)
@@ -87,7 +87,7 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
             rateLimiter.acquire()
             executorService.submit(
                     bilibiliAPI.getLiveClient(eventLoopGroup, it.roomId, true)
-                            .registerListener(normalRoomListener)
+                            .apply { normalRoomListeners.forEach { registerListener(it) } }
                             .connectAsync()
             )
         }
