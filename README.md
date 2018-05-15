@@ -65,7 +65,7 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 
 # 订阅
 ## Hook
-通过注册一个 Hook 的方式, 来接收推送, 请求示例:
+通过注册一个 Hook 的方式, 来接收推送, 请求示例(本程序发出的 HTTP Request):
 
 (注意这个 DanMuMsg 事件在生产环境中是不接收的)
 
@@ -73,7 +73,14 @@ POST http://localhost:8080/test/hook/danMuMsg
 
 BODY application/json
 
-    {"roomId":3,"realRoomId":23058,"eventType":"DANMU_MSG_EVENT","payload":{"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}}
+    {
+        "roomId": 3,
+        "realRoomId": 23058,
+        "eventType": "DANMU_MSG_EVENT",
+        "payload": {"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}
+    }
+
+(payload 为原始数据)
 
 //TODO
 Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
@@ -110,5 +117,21 @@ Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
 ## WebSocket
 客户端通过 WebSocket 连接到本程序, 并从 WebSocket 中得到推送
 
-//TODO
-尚未实现
+应用层协议使用 STOMP, 以 NodeJs 为例:
+
+    const Stomp = require('stompjs');
+    
+    const client = Stomp.overWS('ws://localhost:8080/notifications');
+    client.connect({}, frame => {
+        console.log('Connected: ' + frame);
+        client.subscribe('/DANMU_MSG_EVENT', message => {
+            console.log('Received message: \n' + message.body);
+        });
+    });
+
+WebSocket 的 Endpoint 为 "/notifications", destination 为事件类型.
+
+返回的 Message.body 为字符串(其实是 JSON), 内容与 Hook 推送的一致.
+
+# 开源协议
+GPL V3

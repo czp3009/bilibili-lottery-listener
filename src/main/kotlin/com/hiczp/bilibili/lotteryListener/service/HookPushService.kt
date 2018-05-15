@@ -2,7 +2,7 @@ package com.hiczp.bilibili.lotteryListener.service
 
 import com.hiczp.bilibili.lotteryListener.dao.Hook
 import com.hiczp.bilibili.lotteryListener.event.LotteryEvent
-import com.hiczp.bilibili.lotteryListener.model.PushModel
+import com.hiczp.bilibili.lotteryListener.model.toPushModel
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import retrofit2.Call
@@ -33,7 +33,7 @@ class HookPushService {
         }
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
         hooks.forEach {
-            httpService.push(it.url, PushModel(lotteryEvent)).enqueue(object : Callback<Void> {
+            httpService.push(it.url, lotteryEvent.toPushModel()).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>?, response: Response<Void>) {
                     logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url} with return code ${response.code()}")
                 }

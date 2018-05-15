@@ -4,12 +4,14 @@ import com.hiczp.bilibili.lotteryListener.config.LotteryListenerConfigurationPro
 import com.hiczp.bilibili.lotteryListener.service.PrimaryWorkerService
 import com.hiczp.bilibili.lotteryListener.service.WorkerService
 import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.core.annotation.Order
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
 import java.time.Duration
 
+@Profile("!offline")    //offline profile 用于在断网环境下测试程序能否正常启动
 @Component
 class ApplicationEventListener(private val primaryWorkerService: PrimaryWorkerService,
                                private val workerService: WorkerService,

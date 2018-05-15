@@ -1,0 +1,11 @@
+{
+  "name": "stomp-client-test",
+  "version": "1.0.0",
+  "description": "test for stomp protocol",
+  "main": "index.js",
+  "author": "czp3009",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "stompjs": "^2.3.3"
+  }
+}

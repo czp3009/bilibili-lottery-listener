@@ -18,3 +18,5 @@ data class PushModel<T : DataEntity>(
                     lotteryEvent.dataEntity
             )
 }
+
+fun <T : DataEntity> LotteryEvent<T>.toPushModel(): PushModel<T> = PushModel(this)

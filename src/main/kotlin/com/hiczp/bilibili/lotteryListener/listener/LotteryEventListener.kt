@@ -18,11 +18,11 @@ open class LotteryEventListener(private val hookPushService: HookPushService,
         hookPushService.push(lotteryEvent, hookRepository.findByEventType(lotteryEvent.eventType))
     }
 
-//    @EventListener(LotteryEvent::class)
-//    fun pushToWebSockets(lotteryEvent: LotteryEvent<*>) {
-//        logger.info("Preparing push ${lotteryEvent.eventType} to WebSockets")
-//        webSocketNotifyService.notify(lotteryEvent)
-//    }
+    @EventListener(LotteryEvent::class)
+    fun pushToWebSockets(lotteryEvent: LotteryEvent<*>) {
+        logger.info("Preparing notify ${lotteryEvent.eventType} to WebSocket clients")
+        webSocketNotifyService.notify(lotteryEvent)
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(LotteryEventListener::class.java)

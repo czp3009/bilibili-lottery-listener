@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 @Profile("dev")
 @RestController
 @RequestMapping("/test/hook")
-class TestController {
+class HookTestController {
     /**
      * 我们假装接受者是一种动态语言, 接收类型是字符串
      * 我们假装 hook 有返回值, 并且甚至不是一个 JSON
@@ -25,6 +25,6 @@ class TestController {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(TestController::class.java)
+        private val logger = LoggerFactory.getLogger(HookTestController::class.java)
     }
 }
