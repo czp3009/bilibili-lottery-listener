@@ -3,6 +3,7 @@ package com.hiczp.bilibili.lotteryListener.dao
 import com.hiczp.bilibili.lotteryListener.event.EventType
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -15,10 +16,7 @@ import javax.persistence.*
 data class Hook(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long,
-
-//        @ManyToOne
-//        var user: User,
+        var id: Long? = null,
 
         @Column(nullable = false, length = 32)
         @Enumerated(EnumType.STRING)
@@ -31,4 +29,6 @@ data class Hook(
 @Repository
 interface HookRepository : PagingAndSortingRepository<Hook, Long> {
     fun findByEventType(eventType: EventType): List<Hook>
+
+    fun findByEventTypeAndUrl(eventType: EventType, url: String): Optional<Hook>
 }

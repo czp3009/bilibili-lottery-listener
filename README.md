@@ -29,7 +29,7 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 
     bilibili.listener.page-count=30
 
-以下是默认值和注释
+以下是默认值和注释(配置文件中使用短横线命名法)
 
     data class LotteryListenerConfigurationProperties(
             /**
@@ -56,36 +56,15 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 
 # 抽奖消息
 ## 全站通告的抽奖信息
-全站通告的抽奖信息有  小电视, 20 倍以上的节奏风暴, 活动礼物
+全站通告的抽奖信息有 小电视(摩天大楼的数据包与小电视是一样的), 20 倍以上的节奏风暴, 活动礼物
 
 ## 非全站通告的抽奖信息
 比如 20 倍以下的节奏风暴不会在全站通告, 而只在发生这个事件的直播间内会有消息(在弹幕推送 socket 中).
 
 对于这种事件, 本程序的策略是连接最热门的前 N 个直播间并监听他们的消息, 从而尽可能多的获得这种抽奖消息并推送给订阅者.
 
-# 订阅
-## Hook
-通过注册一个 Hook 的方式, 来接收推送, 请求示例(本程序发出的 HTTP Request):
-
-(注意这个 DanMuMsg 事件在生产环境中是不接收的)
-
-POST http://localhost:8080/test/hook/danMuMsg
-
-BODY application/json
-
-    {
-        "roomId": 3,
-        "realRoomId": 23058,
-        "eventType": "DANMU_MSG_EVENT",
-        "payload": {"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}
-    }
-
-(payload 为原始数据)
-
-//TODO
-Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
-
-事件类型
+# 事件
+以上几种事件的定义如下
 
     enum class EventType {
         /**
@@ -114,8 +93,40 @@ Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
         SPECIAL_GIFT_END_EVENT
     }
 
+# 订阅
+## Hook
+通过注册一个 Hook 的方式, 来接收推送.
+ 
+Hook 注册示例(向本程序发送的请求)
+
+    POST http://localhost:8080/api/hooks
+    Content-Type: application/json
+    
+    {
+        "eventType":"DANMU_MSG_EVENT",
+        "url":"http://localhost:8080/test/hook"
+    }
+
+(一旦对应的事件发生, 本程序就会向目标 URL 发送请求)
+
+回调示例(本程序发出的请求)
+
+    POST http://localhost:8080/test/hook
+    Content-Type: application/json
+
+    {
+        "roomId": 3,
+        "realRoomId": 23058,
+        "eventType": "DANMU_MSG_EVENT",
+        "payload": {"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}
+    }
+
+(注意 DanMuMsg 事件在生产环境中是不触发的)
+
+(payload 为原始数据)
+
 ## WebSocket
-客户端通过 WebSocket 连接到本程序, 并从 WebSocket 中得到推送
+客户端通过 WebSocket 连接到本程序, 并从 WebSocket 中得到推送.
 
 应用层协议使用 STOMP, 以 NodeJs 为例:
 
@@ -131,7 +142,7 @@ Hook 的注册还没实现, 现在要手动将 Hook 添加到数据库
 
 WebSocket 的 Endpoint 为 "/notifications", destination 为事件类型.
 
-返回的 Message.body 为字符串(其实是 JSON), 内容与 Hook 推送的一致.
+返回的 Message.body 为 JSON 字符串, 内容与 Hook 推送的一致.
 
 # 开源协议
 GPL V3

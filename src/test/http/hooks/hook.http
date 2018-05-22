@@ -1,0 +1,13 @@
+POST http://localhost:8080/api/hooks
+Content-Type: application/json
+
+{
+    "eventType":"SMALL_TV_EVENT",
+    "url":"http://localhost:8080/test/hook"
+}
+
+###
+
+DELETE http://localhost:8080/api/hooks/8
+
+###
