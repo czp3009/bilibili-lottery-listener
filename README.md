@@ -136,7 +136,7 @@ Hook 注册示例(向本程序发送的请求)
     client.connect({}, frame => {
         console.log('Connected: ' + frame);
         client.subscribe('/DANMU_MSG_EVENT', message => {
-            console.log('Received message: \n' + message.body);
+            console.log('Received message: \n' + message.body)
         });
     });
 
