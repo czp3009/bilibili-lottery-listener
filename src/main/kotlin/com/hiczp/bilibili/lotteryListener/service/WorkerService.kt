@@ -15,7 +15,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
-import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
 @Service
@@ -27,15 +26,6 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
     private val pageCount = lotteryListenerConfigurationProperties.pageCount
     private val expectedRoomCount = pageCount * PAGE_SIZE
     private var eventLoopGroup: EventLoopGroup? = null
-
-    @PostConstruct
-    fun onCreate() {
-        createEventLoopGroup()
-    }
-
-    private fun createEventLoopGroup() {
-        eventLoopGroup = NioEventLoopGroup(expectedRoomCount / lotteryListenerConfigurationProperties.roomsPerThread)
-    }
 
     private fun connectToHottestRooms() {
         logger.info("Start connect to top $expectedRoomCount hottest room")
@@ -77,12 +67,15 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
             return
         }
         //如果热门房间列表在获取的途中发生了变动, 可能会导致最终结果里面有重复的房间
-        rooms.distinctBy { it.roomId }  //这一行可能会抛出 NullPointerException, 完全不知道为什么
-        logger.info("Get ${rooms.size} available rooms")
+        val availableRooms = rooms.distinctBy { it.roomId }  //这一行可能会抛出 NullPointerException, 完全不知道为什么
+        logger.info("Get ${availableRooms.size} available rooms")
+        if (availableRooms.isEmpty()) {
+            logger.error("Cannot get any available rooms, please check your network")
+        }
 
         //开始连接房间
-        logger.info("Start connect to ${rooms.size} rooms")
-        rooms.forEach {
+        logger.info("Start connect to ${availableRooms.size} rooms")
+        availableRooms.forEach {
             if (executorService.isShutdown) return
             //限制每秒最大请求数, 以免被封
             rateLimiter.acquire()
@@ -102,10 +95,12 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
     }
 
     fun refresh() {
-        logger.info("Closing connections...")
-        eventLoopGroup?.shutdownGracefully()!!.sync()
-        logger.info("Previous connections closed")
-        createEventLoopGroup()
+        eventLoopGroup?.run {
+            logger.info("Closing connections...")
+            this.shutdownGracefully().sync()
+            logger.info("Previous connections closed")
+        }
+        eventLoopGroup = NioEventLoopGroup(expectedRoomCount / lotteryListenerConfigurationProperties.roomsPerThread)
         connectToHottestRooms()
     }
 
