@@ -98,13 +98,13 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
     @PreDestroy
     fun onDestroy() {
         executorService.shutdownNow()
-        shutdownEventLoopGroup()
+        eventLoopGroup?.shutdownGracefully()
     }
 
-    private fun shutdownEventLoopGroup() = eventLoopGroup?.shutdownGracefully()
-
     fun refresh() {
-        shutdownEventLoopGroup()
+        logger.info("Closing connections...")
+        eventLoopGroup?.shutdownGracefully()!!.sync()
+        logger.info("Previous connections closed")
         createEventLoopGroup()
         connectToHottestRooms()
     }
