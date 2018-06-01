@@ -36,7 +36,7 @@ class PrimaryWorkerService(private val bilibiliAPI: BilibiliAPI,
         try {
             bilibiliAPI.getLiveClient(eventLoopGroup, OFFICIAL_MUSIC_ROOM_ID)
                     .registerListener(reconnectListener!!)
-                    .apply { primaryRoomListeners.forEach { registerListener(it) } }
+                    .apply { registerListeners(primaryRoomListeners) }
                     .connect()
         } catch (e: IOException) {
             logger.error("Connect to official music room failed: ${e.message}")

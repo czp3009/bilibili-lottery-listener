@@ -20,7 +20,7 @@ class ReconnectListener(private val reconnectTryLimit: Int = 0) {
         if (reconnectTryLimit <= 0) return
 
         logger.info("Preparing to reconnect...")
-        liveClient.unregisterListeners(this)
+        liveClient.unregisterListener(this)
         //连接操作不能在 EventLoopThread 进行
         thread(true, true, block = {
             outside@ while (true) {
@@ -34,19 +34,19 @@ class ReconnectListener(private val reconnectTryLimit: Int = 0) {
                             return@thread
                         }
                         logger.error("Reconnect failed")
-                        val sleepTime =
-                                if (i != reconnectTryLimit) {   //非最后一次失败
-                                    logger.info("Delay ${RECONNECT_INTERVAL}s for next try")
-                                    RECONNECT_INTERVAL * 1000
-                                } else { //最后一次失败
-                                    logger.error("All reconnection attempt failed, please check your network. " +
-                                            "We will sleep ${SLEEP_TIME_AFTER_RECONNECT_ATTEMPT_ALL_FAILED}min before next try")
-                                    SLEEP_TIME_AFTER_RECONNECT_ATTEMPT_ALL_FAILED * 1000 * 60
-                                }
-                        try {
-                            Thread.sleep(sleepTime)
-                        } catch (e: InterruptedException) {
-                            return@thread
+                        if (i != reconnectTryLimit) {   //非最后一次失败
+                            logger.info("Delay ${RECONNECT_INTERVAL}s for next try")
+                            RECONNECT_INTERVAL * 1000
+                        } else { //最后一次失败
+                            logger.error("All reconnection attempt failed, please check your network. " +
+                                    "We will sleep ${SLEEP_TIME_AFTER_RECONNECT_ATTEMPT_ALL_FAILED}min before next try")
+                            SLEEP_TIME_AFTER_RECONNECT_ATTEMPT_ALL_FAILED * 1000 * 60
+                        }.run {
+                            try {
+                                Thread.sleep(this)
+                            } catch (e: InterruptedException) {
+                                return@thread
+                            }
                         }
                     }
                 }

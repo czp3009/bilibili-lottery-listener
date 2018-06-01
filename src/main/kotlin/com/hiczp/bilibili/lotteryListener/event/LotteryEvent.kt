@@ -3,6 +3,7 @@ package com.hiczp.bilibili.lotteryListener.event
 import com.hiczp.bilibili.api.live.socket.LiveClient
 import com.hiczp.bilibili.api.live.socket.entity.DataEntity
 import com.hiczp.bilibili.api.live.socket.event.ReceivePackageEvent
+import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEvent
 
 class LotteryEvent<T : DataEntity>(source: LiveClient,
@@ -17,6 +18,9 @@ class LotteryEvent<T : DataEntity>(source: LiveClient,
 
     fun getSource0(): LiveClient = source as LiveClient
 }
+
+fun <T : DataEntity> ApplicationContext.publishLotteryEvent(eventType: EventType, receivePackageEvent: ReceivePackageEvent<T>) =
+        publishEvent(LotteryEvent(eventType, receivePackageEvent))
 
 /**
  * 使用 Enum 是为了方便数据库存储

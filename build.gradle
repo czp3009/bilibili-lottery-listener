@@ -1,5 +1,5 @@
 group 'com.hiczp'
-version '0.0.7'
+version '0.0.8'
 description 'Bilibili 抽奖监听程序'
 
 buildscript {
@@ -49,7 +49,7 @@ compileTestKotlin {
 //bilibili
 dependencies {
     // https://mvnrepository.com/artifact/com.hiczp/bilibili-api
-    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.14'
+    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.15'
 }
 
 //spring

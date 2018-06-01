@@ -67,25 +67,28 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
             return
         }
         //如果热门房间列表在获取的途中发生了变动, 可能会导致最终结果里面有重复的房间
-        val availableRooms = rooms.distinctBy { it.roomId }  //这一行可能会抛出 NullPointerException, 完全不知道为什么
-        logger.info("Get ${availableRooms.size} available rooms")
-        if (availableRooms.isEmpty()) {
-            logger.error("Cannot get any available rooms, please check your network")
-        }
+        rooms.distinctBy { it.roomId }  //这一行可能会抛出 NullPointerException, 完全不知道为什么
+                .run {
+                    logger.info("Get $size available rooms")
+                    if (isEmpty()) {
+                        logger.error("Cannot get any available rooms, please check your network")
+                        return
+                    }
 
-        //开始连接房间
-        logger.info("Start connect to ${availableRooms.size} rooms")
-        availableRooms.forEach {
-            if (executorService.isShutdown) return
-            //限制每秒最大请求数, 以免被封
-            rateLimiter.acquire()
-            executorService.submit(
-                    bilibiliAPI.getLiveClient(eventLoopGroup, it.roomId, true)
-                            .apply { normalRoomListeners.forEach { registerListener(it) } }
-                            .connectAsync()
-            )
-        }
-        logger.info("All connection requests have been sent")
+                    //开始连接房间
+                    logger.info("Start connect to $size rooms")
+                    forEach {
+                        if (executorService.isShutdown) return
+                        //限制每秒最大请求数, 以免被封
+                        rateLimiter.acquire()
+                        executorService.submit(
+                                bilibiliAPI.getLiveClient(eventLoopGroup, it.roomId, true)
+                                        .apply { registerListeners(normalRoomListeners) }
+                                        .connectAsync()
+                        )
+                    }
+                    logger.info("All connection requests have been sent")
+                }
     }
 
     @PreDestroy

@@ -16,16 +16,16 @@ class HookController(private val hookRepository: HookRepository) {
     fun getHooks(pageable: Pageable): Page<Hook> = hookRepository.findAll(pageable)
 
     @PostMapping
-    fun createHook(@Valid @RequestBody hookCreationModel: HookCreationModel): Hook {
-        hookRepository.findByEventTypeAndUrl(hookCreationModel.eventType, hookCreationModel.url).ifPresent { throw DuplicateHookException() }
-        return hookRepository.save(hookCreationModel.toHook())
-    }
+    fun createHook(@Valid @RequestBody hookCreationModel: HookCreationModel): Hook =
+            hookRepository.findByEventTypeAndUrl(hookCreationModel.eventType, hookCreationModel.url)
+                    .ifPresent { throw DuplicateHookException() }
+                    .run { hookRepository.save(hookCreationModel.toHook()) }
 
     @DeleteMapping("/{id}")
-    fun deleteHookById(@PathVariable id: Long) {
-        hookRepository.findById(id).orElseThrow { HookNotFoundException() }
-        hookRepository.deleteById(id)
-    }
+    fun deleteHookById(@PathVariable id: Long) =
+            hookRepository.findById(id)
+                    .orElseThrow { HookNotFoundException() }
+                    .run { hookRepository.deleteById(id) }
 }
 
 @ResponseStatus(HttpStatus.BAD_REQUEST, reason = "The Hook already exists")

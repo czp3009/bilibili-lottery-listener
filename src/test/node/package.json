@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "czp3009",
   "license": "GPL-3.0",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "stompjs": "^2.3.3"
   }

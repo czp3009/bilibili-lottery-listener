@@ -5,7 +5,7 @@ import com.hiczp.bilibili.api.live.socket.event.DanMuMsgPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SysGiftPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SysMsgPackageEvent
 import com.hiczp.bilibili.lotteryListener.event.EventType
-import com.hiczp.bilibili.lotteryListener.event.LotteryEvent
+import com.hiczp.bilibili.lotteryListener.event.publishLotteryEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Profile
@@ -19,30 +19,31 @@ class DefaultPrimaryRoomListener(private val applicationContext: ApplicationCont
     fun onSysMsg(sysMsgPackageEvent: SysMsgPackageEvent) {
         val sysMsgEntity = sysMsgPackageEvent.entity
         //确认其是小电视消息
-        if (sysMsgEntity.tvId != null) {
+        sysMsgEntity.tvId?.run {
             logger.info("Received smallTV package, " +
-                    "tvId ${sysMsgEntity.tvId}, roomId ${sysMsgEntity.roomId}, realRoomId ${sysMsgEntity.realRoomId}")
-            applicationContext.publishEvent(LotteryEvent(EventType.SMALL_TV_EVENT, sysMsgPackageEvent))
+                    "tvId $this, roomId ${sysMsgEntity.roomId}, realRoomId ${sysMsgEntity.realRoomId}")
+            applicationContext.publishLotteryEvent(EventType.SMALL_TV_EVENT, sysMsgPackageEvent)
         }
     }
 
     @Subscribe
     fun onSysGift(sysGiftPackageEvent: SysGiftPackageEvent) {
         val sysGiftEntity = sysGiftPackageEvent.entity
-        val event = when (sysGiftEntity.giftId) {
+        when (sysGiftEntity.giftId) {
             null -> return //不可抽奖的礼物
             SPECIAL_GIFT_ID -> {    //超过 20 倍的节奏风暴
                 logger.info("Received globalSpecialGift package, " +
                         "roomId ${sysGiftEntity.roomId}")
-                LotteryEvent(EventType.GLOBAL_SPECIAL_GIFT_EVENT, sysGiftPackageEvent)
+                EventType.GLOBAL_SPECIAL_GIFT_EVENT
             }
             else -> {    //活动礼物
                 logger.info("Received activityGift package, " +
                         "giftId ${sysGiftEntity.giftId}, msg ${sysGiftEntity.msg}, roomId ${sysGiftEntity.roomId}, realRoomId ${sysGiftEntity.realRoomId}")
-                LotteryEvent(EventType.ACTIVITY_GIFT_EVENT, sysGiftPackageEvent)
+                EventType.ACTIVITY_GIFT_EVENT
             }
+        }.run {
+            applicationContext.publishLotteryEvent(this, sysGiftPackageEvent)
         }
-        applicationContext.publishEvent(event)
     }
 
     companion object {
@@ -61,7 +62,7 @@ class TestPrimaryRoomListener(private val applicationContext: ApplicationContext
     fun onDanMuMsg(danMuMsgPackageEvent: DanMuMsgPackageEvent) {
         val danMuMsgEntity = danMuMsgPackageEvent.entity
         logger.info("Received danMuMsg package, username '${danMuMsgEntity.username}', content '${danMuMsgEntity.message}'")
-        applicationContext.publishEvent(LotteryEvent(EventType.DANMU_MSG_EVENT, danMuMsgPackageEvent))
+        applicationContext.publishLotteryEvent(EventType.DANMU_MSG_EVENT, danMuMsgPackageEvent)
     }
 
     companion object {
