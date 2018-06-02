@@ -19,11 +19,15 @@ class DefaultPrimaryRoomListener(private val applicationContext: ApplicationCont
     fun onSysMsg(sysMsgPackageEvent: SysMsgPackageEvent) {
         val sysMsgEntity = sysMsgPackageEvent.entity
         //确认其是小电视消息
-        sysMsgEntity.tvId?.run {
-            logger.info("Received smallTV package, " +
-                    "tvId $this, roomId ${sysMsgEntity.roomId}, realRoomId ${sysMsgEntity.realRoomId}")
-            applicationContext.publishLotteryEvent(EventType.SMALL_TV_EVENT, sysMsgPackageEvent)
-        }
+        sysMsgEntity.tvId
+                ?.takeIf {
+                    it.isNotEmpty() && (it != "0")
+                }
+                ?.run {
+                    logger.info("Received smallTV package, " +
+                            "tvId $this, roomId ${sysMsgEntity.roomId}, realRoomId ${sysMsgEntity.realRoomId}")
+                    applicationContext.publishLotteryEvent(EventType.SMALL_TV_EVENT, sysMsgPackageEvent)
+                }
     }
 
     @Subscribe
