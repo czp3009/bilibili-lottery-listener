@@ -1,0 +1,24 @@
+description 'shared object'
+
+//bilibili
+dependencies {
+    // https://mvnrepository.com/artifact/com.hiczp/bilibili-api
+    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.16'
+}
+
+//kotlin
+dependencies {
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib'
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+}
+
+//spring
+dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+}
+
+bootJar.enabled = false
+jar.enabled = true

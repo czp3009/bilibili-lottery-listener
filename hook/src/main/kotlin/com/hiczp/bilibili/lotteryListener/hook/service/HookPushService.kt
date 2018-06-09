@@ -1,7 +1,7 @@
-package com.hiczp.bilibili.lotteryListener.service
+package com.hiczp.bilibili.lotteryListener.hook.service
 
-import com.hiczp.bilibili.lotteryListener.dao.Hook
 import com.hiczp.bilibili.lotteryListener.event.LotteryEvent
+import com.hiczp.bilibili.lotteryListener.hook.dao.Hook
 import com.hiczp.bilibili.lotteryListener.model.toPushModel
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -34,11 +34,11 @@ class HookPushService {
         logger.info("Pushing ${lotteryEvent.eventType} to hooks...")
         hooks.forEach {
             httpService.push(it.url, lotteryEvent.toPushModel()).enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>?, response: Response<Void>) {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     logger.debug("${lotteryEvent.eventType} pushed to hook ${it.url} with return code ${response.code()}")
                 }
 
-                override fun onFailure(call: Call<Void>?, t: Throwable) {
+                override fun onFailure(call: Call<Void>, t: Throwable) {
                     logger.error("Error occurred while pushing ${lotteryEvent.eventType} to hook ${it.url}: ${t.message}")
                 }
             })

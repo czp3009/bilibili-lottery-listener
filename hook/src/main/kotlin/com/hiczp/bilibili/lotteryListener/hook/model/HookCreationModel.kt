@@ -1,7 +1,7 @@
-package com.hiczp.bilibili.lotteryListener.model
+package com.hiczp.bilibili.lotteryListener.hook.model
 
-import com.hiczp.bilibili.lotteryListener.dao.Hook
 import com.hiczp.bilibili.lotteryListener.event.EventType
+import com.hiczp.bilibili.lotteryListener.hook.dao.Hook
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Size
 

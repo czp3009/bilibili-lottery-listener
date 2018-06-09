@@ -1,0 +1,23 @@
+description 'Bilibili 抽奖监听程序'
+
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    compile project(':shared')
+}
+
+//spring
+dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+    compile group: 'org.springframework.boot', name: 'spring-boot-devtools'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor
+    kapt group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+}
+
+bootJar {
+    manifest {
+        attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
+    }
+}

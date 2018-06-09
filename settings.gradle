@@ -1,1 +1,5 @@
 rootProject.name = 'bilibili-lottery-listener'
+
+include(':shared')
+include(':server')
+include(':hook')

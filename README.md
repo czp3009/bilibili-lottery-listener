@@ -1,31 +1,31 @@
 # Bilibili-Lottery-Listener
 Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这个消息推送到订阅者.
 
-# 部署和运行
+# 运行
+安装 jre
+
+    apt install openjdk-8-jre
+
+在本仓库的 releases 页面下载 jar 后, 执行以下命令行
+
+    java -jar server-{version}.jar
+
+(version 是版本号)
+
+# 构建
+安装 jdk
 
     apt install openjdk-8-jdk
     
-然后需要通过配置文件指定数据库连接参数, 在程序工作目录创建配置文件
+clone 本仓库后
 
-    touch application.properties
-
-以下是必要的配置项
-
-    spring.datasource.url=jdbc:mysql://localhost:3306/bilibili_lottery_listener
-    spring.datasource.username=debian-sys-maint
-    spring.datasource.password=
-
-然后直接编译并启动程序
-
-    ./gradlew bootRun
-
-或者打包后再运行
-
+    cd bilibili-lottery-listener
     ./gradlew bootJar
-    java -jar ./build/libs/bilibili-lottery-listener-{version}.jar
 
 # 可配置项
-配置写在配置文件中, 例如(配置文件也可以是 yaml)
+配置文件需要放置在程序工作目录, 配置文件可以是 properties 也可以是 yaml.
+
+配置写在配置文件中, 例如(也可以是 yaml)
 
     bilibili.listener.page-count=30
 
@@ -68,11 +68,11 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 
     enum class EventType {
         /**
-         * DanMuMsg 用于测试时调试程序逻辑
+         * DanMuMsg 用于测试时调试程序逻辑, 生产环境不存在此事件
          */
         DANMU_MSG_EVENT,
         /**
-         * 小电视
+         * 小电视(摩天大楼也是这个)
          */
         SMALL_TV_EVENT,
         /**
@@ -94,41 +94,9 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
     }
 
 # 订阅
-## Hook
-通过注册一个 Hook 的方式, 来接收推送.
- 
-Hook 注册示例(向本程序发送的请求)
-
-    POST http://localhost:8080/api/hooks
-    Content-Type: application/json
-    
-    {
-        "eventType":"DANMU_MSG_EVENT",
-        "url":"http://localhost:8080/test/hook"
-    }
-
-(一旦对应的事件发生, 本程序就会向目标 URL 发送请求)
-
-回调示例(本程序发出的请求)
-
-    POST http://localhost:8080/test/hook
-    Content-Type: application/json
-
-    {
-        "roomId": 3,
-        "realRoomId": 23058,
-        "eventType": "DANMU_MSG_EVENT",
-        "payload": {"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}
-    }
-
-(注意 DanMuMsg 事件在生产环境中是不触发的)
-
-(payload 为原始数据)
-
-## WebSocket
 客户端通过 WebSocket 连接到本程序, 并从 WebSocket 中得到推送.
 
-应用层协议使用 STOMP, 以 NodeJs 为例:
+应用层协议使用 STOMP, 以 JavaScript 为例(npm install stompjs):
 
     const Stomp = require('stompjs');
     
@@ -142,7 +110,29 @@ Hook 注册示例(向本程序发送的请求)
 
 WebSocket 的 Endpoint 为 "/notifications", destination 为事件类型.
 
-返回的 Message.body 为 JSON 字符串, 内容与 Hook 推送的一致.
+返回的 Message.body 为 JSON 字符串.
+
+    {
+        "roomId": 3,
+        "realRoomId": 23058,
+        "eventType": "DANMU_MSG_EVENT",
+        "payload": {"cmd":"DANMU_MSG","info":[[0,1,25,16777215,1525934492,"1525934492",0,"8a0f75dc",0],"悄悄地奉献。",[39042255,"夏沫丶琉璃浅梦",0,1,0,10000,1,""],[15,"夏沫","乄夏沫丶","1547306",16746162,""],[44,0,16746162,5811],["task-year","title-29-1"],0,0,{"uname_color":""}]}
+    }
+
+(注意 DanMuMsg 事件在生产环境中是不触发的)
+
+(payload 为原始数据)
+
+为了方便强类型语言接收该消息, 以下提供该模型的定义
+
+    data class PushModel<T : DataEntity>(
+            val roomId: Long,
+            val realRoomId: Long,
+            val eventType: EventType,
+            val payload: T
+    )
+
+(payload 可以当字符串来反序列化)
 
 # 测试
 测试代码(不同语言的 stomp 使用范例)在 /test 文件夹中.

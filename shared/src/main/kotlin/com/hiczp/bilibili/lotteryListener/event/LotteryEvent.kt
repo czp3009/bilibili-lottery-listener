@@ -31,7 +31,7 @@ enum class EventType {
      */
     DANMU_MSG_EVENT,
     /**
-     * 小电视
+     * 小电视(摩天大楼也是这个)
      */
     SMALL_TV_EVENT,
     /**

@@ -1,4 +1,4 @@
-package com.hiczp.bilibili.lotteryListener.dao
+package com.hiczp.bilibili.lotteryListener.hook.dao
 
 import com.hiczp.bilibili.lotteryListener.event.EventType
 import org.springframework.data.repository.PagingAndSortingRepository
