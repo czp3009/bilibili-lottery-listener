@@ -1,4 +1,4 @@
-package com.hiczp.bilibili.lotteryListener.controller.test
+package com.hiczp.bilibili.lotteryListener.hook.controller.test
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
