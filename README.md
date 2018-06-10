@@ -6,7 +6,7 @@ Bilibili 抽奖监听服务器. 当 B站(直播) 有抽奖发生时, 将把这�
 
     apt install openjdk-8-jre
 
-在本仓库的 releases 页面下载 jar 后, 执行以下命令行
+在本仓库的 [releases](/releases) 页面下载 jar 后, 执行以下命令行
 
     java -jar server-{version}.jar
 
@@ -108,7 +108,7 @@ clone 本仓库后
         });
     });
 
-WebSocket 的 Endpoint 为 "/notifications", destination 为事件类型.
+WebSocket 的 Endpoint 为 "/notifications", Destination 为事件类型.
 
 返回的 Message.body 为 JSON 字符串.
 
