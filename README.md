@@ -25,12 +25,15 @@ clone 本仓库后
 # 可配置项
 配置文件需要放置在程序工作目录, 配置文件可以是 properties 也可以是 yaml.
 
-配置写在配置文件中, 例如(也可以是 yaml)
+配置文件需要命名为 application, 例如 application.properties 或 application.yaml.
+
+配置写在配置文件中, 例如以下配置(也可以是 yaml, yaml 写法请脑补转换)
 
     bilibili.listener.page-count=30
 
-以下是默认值和注释(配置文件中使用短横线命名法)
+以下是默认值和注释(配置文件中使用短横线命名法, 例如 pageCount 转换为 page-count)
 
+    @ConfigurationProperties(prefix = "bilibili.listener")
     data class LotteryListenerConfigurationProperties(
             /**
              * 重新连接官方音悦台的重试次数限制
