@@ -3,7 +3,7 @@ description 'shared object'
 //bilibili
 dependencies {
     // https://mvnrepository.com/artifact/com.hiczp/bilibili-api
-    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.16'
+    compile group: 'com.hiczp', name: 'bilibili-api', version: '0.0.18'
 }
 
 //kotlin
