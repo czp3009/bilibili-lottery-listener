@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.50'
+        kotlinVersion = '1.2.51'
         jvmTargetVersion = '1.8'
         springBootVersion = '2.0.3.RELEASE'
     }
@@ -23,7 +23,7 @@ subprojects {
     }
 
     group 'com.hiczp'
-    version '0.1.2'
+    version '0.1.3'
 
     apply plugin: 'kotlin'
     apply plugin: 'org.springframework.boot'
@@ -33,6 +33,7 @@ subprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     compileKotlin {

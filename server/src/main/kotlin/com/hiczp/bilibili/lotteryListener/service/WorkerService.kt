@@ -68,7 +68,7 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
         }
         //如果热门房间列表在获取的途中发生了变动, 可能会导致最终结果里面有重复的房间
         rooms.distinctBy {
-            //这一行可能会抛出 NullPointerException, 完全不知道为什么
+            //TODO 这一行可能会抛出 NullPointerException, 完全不知道为什么
             it.roomId
         }.run {
             logger.info("Get $size available rooms")
