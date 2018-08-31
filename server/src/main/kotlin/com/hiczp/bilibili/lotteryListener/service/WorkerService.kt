@@ -47,7 +47,7 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
                             logger.error("Error occurred while fetching hottest room page $page: ${body.message}")
                             return@run
                         }
-                        rooms.addAll(body.data.filter { it != null }) //我不知道为什么, 但是测试中存在 NullPointerException 的情况
+                        rooms.addAll(body.data.filter { it != null && it.roomId != 0L }) //这里的 roomId 为 0 是脑补的情况
                         logger.debug("Fetch hottest room page $page complete")
                     }
                     countDownLatch.countDown()
@@ -68,7 +68,7 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
         }
         //如果热门房间列表在获取的途中发生了变动, 可能会导致最终结果里面有重复的房间
         rooms.distinctBy {
-            //TODO 这一行可能会抛出 NullPointerException, 完全不知道为什么
+            //这一行可能会抛出 NullPointerException, 完全不知道为什么
             it.roomId
         }.run {
             logger.info("Get $size available rooms")

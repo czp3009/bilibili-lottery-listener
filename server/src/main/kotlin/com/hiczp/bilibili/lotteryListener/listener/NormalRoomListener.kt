@@ -1,6 +1,7 @@
 package com.hiczp.bilibili.lotteryListener.listener
 
 import com.google.common.eventbus.Subscribe
+import com.hiczp.bilibili.api.live.socket.event.GuardLotteryStartPackageEvent
 import com.hiczp.bilibili.api.live.socket.event.SpecialGiftPackageEvent
 import com.hiczp.bilibili.lotteryListener.event.EventType
 import com.hiczp.bilibili.lotteryListener.event.publishLotteryEvent
@@ -25,6 +26,13 @@ class NormalRoomListener(private val applicationContext: ApplicationContext) {
         }.run {
             applicationContext.publishLotteryEvent(this, specialGiftPackageEvent)
         }
+    }
+
+    @Subscribe
+    fun onGuardLotteryStart(guardLotteryStartPackageEvent: GuardLotteryStartPackageEvent) {
+        logger.info("Received guardLotteryStart package, " +
+                "lottery room: ${guardLotteryStartPackageEvent.entity.data.roomId}")
+        applicationContext.publishLotteryEvent(EventType.GUARD_LOTTERY_START, guardLotteryStartPackageEvent)
     }
 
     companion object {

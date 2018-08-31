@@ -49,5 +49,9 @@ enum class EventType {
     /**
      * 节奏风暴结束
      */
-    SPECIAL_GIFT_END_EVENT
+    SPECIAL_GIFT_END_EVENT,
+    /**
+     * 购买舰长之后的抽奖活动
+     */
+    GUARD_LOTTERY_START
 }
