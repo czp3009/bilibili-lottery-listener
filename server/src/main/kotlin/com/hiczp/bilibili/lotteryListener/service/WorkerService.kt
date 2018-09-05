@@ -32,7 +32,12 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
         //获取前 x 页的热门房间信息
         val countDownLatch = CountDownLatch(pageCount)
         val rooms = ArrayList<RoomsEntity.Data>()
+        var lastPageNumber = Int.MAX_VALUE
         for (page in 1..pageCount) {
+            if (page > lastPageNumber) {
+                countDownLatch.countDown()
+                continue
+            }
             rateLimiter.acquire()
             bilibiliAPI.liveService.getHottestRooms(page).enqueue(object : Callback<RoomsEntity> {
                 override fun onResponse(call: Call<RoomsEntity>, response: Response<RoomsEntity>) {
@@ -49,6 +54,15 @@ class WorkerService(private val bilibiliAPI: BilibiliAPI,
                         }
                         rooms.addAll(body.data.filter { it != null && it.roomId != 0L }) //这里的 roomId 为 0 是脑补的情况
                         logger.debug("Fetch hottest room page $page complete")
+                        //当前页不是满页时, 意味着当前页的页码大于等于最后一页
+                        if (body.data.size < PAGE_SIZE) {
+                            synchronized(lastPageNumber) {
+                                if (page < lastPageNumber) {
+                                    lastPageNumber = page
+                                }
+                            }
+                            logger.warn("Page $page is uncompleted, canceled requests for further pages")
+                        }
                     }
                     countDownLatch.countDown()
                 }

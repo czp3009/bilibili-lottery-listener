@@ -23,7 +23,7 @@ subprojects {
     }
 
     group 'com.hiczp'
-    version '0.1.4'
+    version '0.1.5'
 
     apply plugin: 'kotlin'
     apply plugin: 'org.springframework.boot'
